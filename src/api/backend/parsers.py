@@ -8,3 +8,7 @@ create_user_parser.add_argument('is_admin', type=bool, required=True)
 login_parser = reqparse.RequestParser()
 login_parser.add_argument('username', type=str, required=True)
 login_parser.add_argument('password', type=str, required=True)
+
+create_provider_parser = reqparse.RequestParser()
+create_provider_parser.add_argument('name', type=str, required=True)
+create_provider_parser.add_argument('telephone', type=str, required=True)

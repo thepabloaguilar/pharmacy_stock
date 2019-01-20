@@ -10,3 +10,12 @@ CREATE TABLE pharmacy_user(
 
 INSERT INTO pharmacy_user(username, password, is_admin)
 VALUES ('teste', '$pbkdf2-sha256$29000$z5lz7l0LwVgLoVRK6b2XMg$jTqFf9L8Q1vGZjTpXkaHechcFQJ.2OZIlR12vTfV6Io', TRUE);
+
+CREATE TABLE provider(
+    id                  SERIAL,
+    name                VARCHAR,
+    telephone           VARCHAR,
+    is_active           BOOLEAN DEFAULT TRUE,
+    creation_date       TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT pk_provider PRIMARY KEY(id)
+)
