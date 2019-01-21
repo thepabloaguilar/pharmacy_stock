@@ -58,3 +58,14 @@ INSERT INTO medicine(name, medicine_type_id, dosage, amount, quantity, provider_
 VALUES
     ('Super Medicine', 1, 2, 14.02, 100, 1),
     ('Basic Syrup', 2, 4, 10.00, 20, 2);
+
+CREATE TABLE customer(
+    id              SERIAL,
+    name            VARCHAR,
+    telephone       VARCHAR,
+    tax_id          VARCHAR UNIQUE,
+    genre           CHAR(1),
+    is_active       BOOLEAN DEFAULT TRUE,
+    creation_date   TIMESTAMP DEFAULT NOW(),
+    CONSTRAINT pk_customer PRIMARY KEY(id)
+);

@@ -1,7 +1,7 @@
 import flask_restful
 
 from flask import Blueprint
-from .resource import pharmacy_user, login, provider, medicine
+from .resource import pharmacy_user, login, provider, medicine, customer
 
 
 api_bp = Blueprint('backend', __name__)
@@ -24,3 +24,8 @@ api.add_resource(
     '/medicine', '/medicine/<int:medicine_id>')
 api.add_resource(medicine.MedicinesResource, '/medicines')
 api.add_resource(medicine.UploadMedicinesResource, '/medicines/upload')
+
+api.add_resource(
+    customer.CustomerResource,
+    '/customer', '/customer/<int:customer_id>')
+api.add_resource(customer.CustomersResource, '/customers')

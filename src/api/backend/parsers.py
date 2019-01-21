@@ -25,3 +25,10 @@ create_medicine_parser.add_argument('provider_id', type=int, required=True)
 upload_medicine_csv = reqparse.RequestParser()
 upload_medicine_csv.add_argument('file', type=FileStorage,
                                 location=['files', 'form'], required=True)
+
+create_customer_parser = reqparse.RequestParser()
+create_customer_parser.add_argument('name', type=str, required=True)
+create_customer_parser.add_argument('telephone', type=str, required=True)
+create_customer_parser.add_argument('tax_id', type=str, required=True)
+create_customer_parser.add_argument('genre', type=str, required=True,
+                                    choices=['m', 'f'])
