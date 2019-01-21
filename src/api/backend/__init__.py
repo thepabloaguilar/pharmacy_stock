@@ -24,6 +24,8 @@ api.add_resource(
     '/medicine', '/medicine/<int:medicine_id>')
 api.add_resource(medicine.MedicinesResource, '/medicines')
 api.add_resource(medicine.UploadMedicinesResource, '/medicines/upload')
+api.add_resource(medicine.MedicineStockControl,
+                '/medicine/<int:medicine_id>/<string:action>')
 
 api.add_resource(
     customer.CustomerResource,

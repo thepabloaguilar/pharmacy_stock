@@ -8,7 +8,8 @@ from ..security import auth_token_required
 from ..model import PostgresSession
 from ..model.medicine import Medicine
 from ..utils import _json_result
-from ..parsers import create_medicine_parser, upload_medicine_csv
+from ..parsers import create_medicine_parser, upload_medicine_csv, \
+    change_medicine_stock_parser
 
 class MedicineResource(Resource):
 
@@ -145,3 +146,47 @@ class UploadMedicinesResource(Resource):
         _file = args.file
         self._insert_medicines_from_csv(_file)
         return {'message': 'The Medicines has been inserted'}, 201
+
+
+class MedicineStockControl(Resource):
+
+    def _get_medicine(self, medicine_id):
+        session = PostgresSession()
+
+        medicine = session.query(Medicine) \
+            .filter(Medicine._id == medicine_id) \
+            .one_or_none()
+        
+        if not medicine:
+            abort(404, f'Medicine({medicine_id}) not found')
+        return medicine
+
+    def _change_stock(self, medicine_id, quantity, action):
+        medicine = self._get_medicine(medicine_id)
+        session = PostgresSession()
+        
+        if action == 'remove':
+            if medicine.quantity < quantity:
+                abort(412, 'Stock quantity is not enough')
+            quantity *= -1
+
+        session.query(Medicine) \
+            .filter(Medicine._id == medicine_id) \
+            .update({
+                Medicine.quantity: medicine.quantity + quantity
+            })
+        session.commit()
+        return medicine
+
+    @auth_token_required()
+    def patch(self, medicine_id, action):
+        args = change_medicine_stock_parser.parse_args()
+
+        if action not in ['add', 'remove']:
+            abort(400, 'Invalid action')
+
+        if args.quantity <= 0:
+            abort(400, "QUANTITY must be greater than ZERO(0)")
+        
+        medicine = self._change_stock(medicine_id, args.quantity, action)
+        return {'medicine_id': medicine_id, 'quantity': medicine.quantity}
