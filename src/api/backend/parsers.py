@@ -1,4 +1,5 @@
 from flask_restful import reqparse
+from werkzeug.datastructures import FileStorage
 
 create_user_parser = reqparse.RequestParser()
 create_user_parser.add_argument('username', type=str, required=True)
@@ -20,3 +21,7 @@ create_medicine_parser.add_argument('dosage', type=int, required=True)
 create_medicine_parser.add_argument('amount', type=float, required=True)
 create_medicine_parser.add_argument('quantity', type=int, default=0)
 create_medicine_parser.add_argument('provider_id', type=int, required=True)
+
+upload_medicine_csv = reqparse.RequestParser()
+upload_medicine_csv.add_argument('file', type=FileStorage,
+                                location=['files', 'form'], required=True)

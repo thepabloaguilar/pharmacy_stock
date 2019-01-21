@@ -23,3 +23,4 @@ api.add_resource(
     medicine.MedicineResource,
     '/medicine', '/medicine/<int:medicine_id>')
 api.add_resource(medicine.MedicinesResource, '/medicines')
+api.add_resource(medicine.UploadMedicinesResource, '/medicines/upload')
