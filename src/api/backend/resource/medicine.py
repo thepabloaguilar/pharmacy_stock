@@ -189,4 +189,9 @@ class MedicineStockControl(Resource):
             abort(400, "QUANTITY must be greater than ZERO(0)")
         
         medicine = self._change_stock(medicine_id, args.quantity, action)
-        return {'medicine_id': medicine_id, 'quantity': medicine.quantity}
+        response = {
+            'medicine_id': medicine_id,
+            'quantity': medicine.quantity,
+            'amount': medicine.amount
+        }
+        return _json_result(response), 200
