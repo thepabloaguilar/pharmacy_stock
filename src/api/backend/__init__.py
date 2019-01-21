@@ -1,7 +1,7 @@
 import flask_restful
 
 from flask import Blueprint
-from .resource import pharmacy_user, login, provider, medicine, customer
+from .resource import pharmacy_user, login, provider, medicine, customer, sale
 
 
 api_bp = Blueprint('backend', __name__)
@@ -31,3 +31,9 @@ api.add_resource(
     customer.CustomerResource,
     '/customer', '/customer/<int:customer_id>')
 api.add_resource(customer.CustomersResource, '/customers')
+
+api.add_resource(
+    sale.SaleResource,
+    '/sale', '/sale/<int:sale_id>/finalize', '/sale/<int:sale_id>')
+api.add_resource(sale.SaleItemResource,
+    '/sale/<int:sale_id>/item', '/sale/<int:sale_id>/item/<int:item_id>')

@@ -35,3 +35,10 @@ create_customer_parser.add_argument('telephone', type=str, required=True)
 create_customer_parser.add_argument('tax_id', type=str, required=True)
 create_customer_parser.add_argument('genre', type=str, required=True,
                                     choices=['m', 'f'])
+
+create_sale_parser = reqparse.RequestParser()
+create_sale_parser.add_argument('customer_id', type=int, required=True)
+
+create_sale_item_parser = reqparse.RequestParser()
+create_sale_item_parser.add_argument('medicine_id', type=int, required=True)
+create_sale_item_parser.add_argument('quantity', type=int, required=True)
