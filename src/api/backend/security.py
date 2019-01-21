@@ -27,6 +27,7 @@ def generate_auth_token(user):
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1),
             'iat': datetime.datetime.utcnow(),
             'sub': {
+                'user_id': user['_id'],
                 'username': user['username'],
                 'is_admin': user['is_admin']
             }

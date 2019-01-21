@@ -13,6 +13,7 @@ class Login(Resource):
         session = PostgresSession()
 
         user = session.query(
+            PharmacyUser._id,
             PharmacyUser.username,
             PharmacyUser.password,
             PharmacyUser.is_admin
