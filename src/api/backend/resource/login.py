@@ -1,4 +1,5 @@
 from flask import abort
+from flasgger import swag_from
 from flask_restful import Resource
 
 from ..security import check_encrypted_password, generate_auth_token
@@ -25,6 +26,7 @@ class Login(Resource):
             abort(404, 'Usuario não encontrado')
         return user._asdict()
 
+    @swag_from('../docs/login/login.yml')
     def post(self):
         args = login_parser.parse_args()
         user = self._get_user(args.username)

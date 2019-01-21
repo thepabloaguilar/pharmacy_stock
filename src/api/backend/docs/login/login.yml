@@ -1,0 +1,52 @@
+Login Route
+----
+tags:
+  - Login
+parameters:
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Username & Password
+    schema:
+      properties:
+        username:
+          type: string
+          description: Username
+          example: teste
+        password:
+          type: string
+          format: password
+          description: Password
+          example: senha123
+definitions:
+  Token:
+    type: object
+    properties:
+      token:
+        type: string
+  Wrong_Password:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Senha Incorreta
+  Wrong_User:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Usuario não encontrado
+responses:
+  200:
+    description: Token to send in requests' HEADER
+    schema:
+      $ref: '#/definitions/Token'
+  401:
+    description: Invalid Password
+    schema:
+      $ref: '#/definitions/Wrong_Password'
+  404:
+    description: User not found
+    schema:
+      $ref: '#/definitions/Wrong_User'
