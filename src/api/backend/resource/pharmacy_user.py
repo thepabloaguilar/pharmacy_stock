@@ -41,7 +41,6 @@ class PharmacyUserResource(Resource):
         user = PharmacyUser(
             username=informations.username,
             password=password,
-            creation_date=datetime.now(),
             is_admin=informations.is_admin)
 
         try:
