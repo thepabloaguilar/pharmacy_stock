@@ -1,11 +1,11 @@
 from flask import abort
 from flask_restful import Resource
-from sqlalchemy.sql import func
 
 from ..model import PostgresSession
 from ..model.provider import Provider
 from ..security import auth_token_required
 from ..parsers import create_provider_parser
+from ..utils import _json_result
 
 class ProviderResource(Resource):
 
@@ -55,9 +55,9 @@ class ProviderResource(Resource):
             'name': provider.name,
             'telephone': provider.telephone,
             'is_active': provider.is_active,
-            'creation_date': str(provider.creation_date),
+            'creation_date': provider.creation_date,
         }
-        return _provider, 200
+        return _json_result(_provider), 200
     
     @auth_token_required(only_admin=True)
     def post(self):
@@ -81,9 +81,7 @@ class ProvidersResource(Resource):
             Provider.name,
             Provider.telephone,
             Provider.is_active,
-            func.to_char(
-                Provider.creation_date, 'YYYY-MM-DD HH:MM:SS')
-                    .label('creation_date')
+            Provider.creation_date
         )
 
         if not self.user_info['is_admin']:
@@ -92,4 +90,4 @@ class ProvidersResource(Resource):
 
     @auth_token_required()
     def get(self):
-        return self._get_providers()
+        return _json_result(self._get_providers()), 200

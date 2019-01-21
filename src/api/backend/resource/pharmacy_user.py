@@ -2,13 +2,13 @@ from datetime import datetime
 
 from flask import abort
 from flask_restful import Resource
-from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 
 from ..security import auth_token_required, encrypt_password
 from ..parsers import create_user_parser
 from ..model import PostgresSession
 from ..model.pharmacy_user import PharmacyUser
+from ..utils import _json_result
 
 class PharmacyUserResource(Resource):
 
@@ -61,9 +61,9 @@ class PharmacyUserResource(Resource):
             'id': user._id,
             'username': user.username,
             'is_active': user.is_active,
-            'creation_date': str(user.creation_date)
+            'creation_date': user.creation_date
         }
-        return informations, 200
+        return _json_result(informations), 200
 
     @auth_token_required()
     def post(self):
@@ -89,12 +89,9 @@ class PharmacyUsersResource(Resource):
             PharmacyUser._id.label('id'),
             PharmacyUser.username,
             PharmacyUser.is_active,
-            func.to_char(
-                PharmacyUser.creation_date, 'YYYY-MM-DD HH:MM:SS')
-                    .label('creation_date')) \
-            .all()
+            PharmacyUser.creation_date)
         return [u._asdict() for u in users]
 
     @auth_token_required(only_admin=True)
     def get(self):
-        return self._get_users()
+        return _json_result(self._get_users()), 200
