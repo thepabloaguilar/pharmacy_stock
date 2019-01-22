@@ -28,8 +28,9 @@ api.add_resource(customer.CustomerResource, '/customer/<int:customer_id>')
 api.add_resource(customer.CreateCustomerResource, '/customer')
 api.add_resource(customer.CustomersResource, '/customers')
 
-api.add_resource(
-    sale.SaleResource,
-    '/sale', '/sale/<int:sale_id>/finalize', '/sale/<int:sale_id>')
+api.add_resource(sale.DeleteSaleResource, '/sale/<int:sale_id>')
+api.add_resource(sale.FinalizeSaleResource, '/sale/<int:sale_id>/finalize')
+api.add_resource(sale.CreateSaleResource, '/sale')
+api.add_resource(sale.CreateSaleItemResource, '/sale/<int:sale_id>/item')
 api.add_resource(sale.SaleItemResource,
-    '/sale/<int:sale_id>/item', '/sale/<int:sale_id>/item/<int:item_id>')
+                 '/sale/<int:sale_id>/item/<int:item_id>')

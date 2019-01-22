@@ -1,0 +1,40 @@
+Cancel Sale
+----
+tags:
+  - Sale
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: path
+    name: sale_id
+    type: integer
+    required: true
+    description: Sale's ID
+definitions:
+  Sale_Delete:
+    type: object
+    properties:
+      sale_id:
+        type: integer
+        description: Sale ID
+        example: 1
+      status:
+        type: string
+        description: Sale status
+        example: CANCELLED
+responses:
+  200:
+    description: Sale's information
+    schema:
+      $ref: '#/definitions/Sale_Delete'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

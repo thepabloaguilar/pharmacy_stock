@@ -1,0 +1,69 @@
+Get Sale Items's information
+----
+tags:
+  - Sale
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: path
+    name: sale_id
+    type: integer
+    required: true
+    description: Sale's ID
+  - in: path
+    name: item_id
+    type: integer
+    required: true
+    description: Sale Item's ID
+definitions:
+  Sale_Item_Informations:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Sale Item ID
+        example: 1
+      sale_id:
+        type: integer
+        description: Sale ID
+        example: 1
+      medicine_id:
+        type: integer
+        description: Medicine's ID
+        example: 1
+      current_medicine_price:
+        type: float
+        description: Medicine Price when it was bought
+        example: 20.00
+      quantity:
+        type: integer
+        description: Medicine quantity
+        example: 5
+      final_price:
+        type: float
+        description: Product between 'current_medicine_price' and 'quantity'
+        example: 100.00
+      is_cancelled:
+        type: boolean
+        description: Indicates if Item was cancelled
+        example: false
+      creation_date:
+        type: string
+        description: Sale Item's creation date
+        example: "2018-01-01 13:56:20"
+responses:
+  200:
+    description: Sale Items's information
+    schema:
+      $ref: '#/definitions/Sale_Item_Informations'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

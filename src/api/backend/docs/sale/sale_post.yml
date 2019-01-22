@@ -1,0 +1,50 @@
+Create a Sale
+----
+tags:
+  - Sale
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Informations to create a sale
+    schema:
+      properties:
+        customer_id:
+          type: int
+          description: Customer's ID
+          example: 1
+definitions:
+  Sale_Post:
+    type: object
+    properties:
+      sale_id:
+        type: integer
+        description: Sale ID to use in anothers Endpoints
+        example: 1
+      date:
+        type: string
+        description: Sale creation date
+        example: "2018-01-01 14:59:23"
+      status:
+        type: string
+        description: Actual Sale status
+        example: PENDING
+responses:
+  201:
+    description: Message when sale is created
+    schema:
+      $ref: '#/definitions/Sale_Post'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

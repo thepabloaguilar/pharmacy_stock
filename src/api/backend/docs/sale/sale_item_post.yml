@@ -1,0 +1,50 @@
+Create a Sale Item
+----
+tags:
+  - Sale
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Informations to create a sale item
+    schema:
+      properties:
+        medicine_id:
+          type: integer
+          description: Medicine's ID
+          example: 1
+        quantity:
+          type: integer
+          description: Medicine quantity desired
+          example: 10
+definitions:
+  Sale_Item_Post:
+    type: object
+    properties:
+      sale_item_id:
+        type: integer
+        description: Sale Item ID to use in anothers Endpoints
+        example: 1
+      quantity:
+          type: integer
+          description: Medicine quantity
+          example: 10
+responses:
+  201:
+    description: Message when sale item is created
+    schema:
+      $ref: '#/definitions/Sale_Item_Post'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

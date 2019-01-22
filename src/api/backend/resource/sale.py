@@ -2,6 +2,7 @@ import requests
 
 from datetime import datetime
 from flask import abort
+from flasgger import swag_from
 from flask_restful import Resource
 from sqlalchemy import func
 
@@ -27,9 +28,21 @@ class SaleBaseResource(Resource):
         if not sale:
             abort(404, 'Sale not found')
         return sale
+    
+    def _update_medicine(self, medicine_id, quantity, action):
+        data = {'quantity': quantity}
+        headers = {'Content-Type': 'application/json'}
+        r = request_to_myself(
+            'patch',
+            f'/medicine/{medicine_id}/{action}',
+            data=data, headers=headers)
+
+        if r.status_code == 404:
+            abort(404, f'Medicine({medicine_id}) not found')
+        return r.json()
 
 
-class SaleResource(SaleBaseResource):
+class DeleteSaleResource(SaleBaseResource):
     
     def _get_sale_items_sum_and_count(self, sale_id):
         session = PostgresSession()
@@ -55,13 +68,61 @@ class SaleResource(SaleBaseResource):
             Sale.status: 'FINALIZED'
         })
         session.commit()
+
+    def _cancel_sale(self, sale_id):
+        sale = self._get_sale(sale_id)
+        session = PostgresSession()
+
+        self._make_sale_items_cancelation(sale_id)
+
+        session.query(Sale) \
+            .filter(Sale._id == sale_id) \
+            .update({Sale.status: 'CANCELLED'})
+        session.commit()
+        return sale
     
+    @auth_token_required()
+    @swag_from('../docs/sale/sale_delete.yml')
+    def delete(self, sale_id):
+        sale = self._cancel_sale(sale_id)
+        return {'sale_id': sale._id, 'status': sale.status}, 200
+
+
+class FinalizeSaleResource(SaleBaseResource):
+
     def _make_sale_items_cancelation(self, sale_id):
         sale_items = self._get_sale_items(sale_id)
         base_url = f'/sale/{sale_id}/item'
         
         for sale_item in sale_items:
             request_to_myself('delete', f'{base_url}/{sale_item._id}')
+
+    def _finalize_sale(self, sale_id):
+        sale = self._get_sale(sale_id)
+        if sale.status != 'PENDING':
+            abort(412, f'Sale({sale_id}) has been {sale.status}')
+
+        sum_and_count = self._get_sale_items_sum_and_count(sale_id)
+        if sum_and_count.count == 0:
+            abort(412, f'Sale({sale_id}) does not have any items to compute')
+        
+        self._make_sale_finalization(sale_id, sum_and_count.sum)
+        return sale
+
+    @auth_token_required()
+    @swag_from('../docs/sale/sale_finalize_patch.yml')
+    def patch(self, sale_id):
+        sale = self._finalize_sale(sale_id)
+        response = {
+            'sale_id': sale._id,
+            'amount': sale.amount,
+            'transaction_date': sale.transaction_date,
+            'status': sale.status,
+        }
+        return _json_result(response), 200
+
+
+class CreateSaleResource(Resource):
 
     def _verify_if_customer_exist(self, customer_id):
         session = PostgresSession()
@@ -84,31 +145,8 @@ class SaleResource(SaleBaseResource):
         session.commit()
         return sale
 
-    def _finalize_sale(self, sale_id):
-        sale = self._get_sale(sale_id)
-        if sale.status != 'PENDING':
-            abort(412, f'Sale({sale_id}) has been {sale.status}')
-
-        sum_and_count = self._get_sale_items_sum_and_count(sale_id)
-        if sum_and_count.count == 0:
-            abort(412, f'Sale({sale_id}) does not have any items to compute')
-        
-        self._make_sale_finalization(sale_id, sum_and_count.sum)
-        return sale
-    
-    def _cancel_sale(self, sale_id):
-        sale = self._get_sale(sale_id)
-        session = PostgresSession()
-
-        self._make_sale_items_cancelation(sale_id)
-
-        session.query(Sale) \
-            .filter(Sale._id == sale_id) \
-            .update({Sale.status: 'CANCELLED'})
-        session.commit()
-        return sale
-
     @auth_token_required()
+    @swag_from('../docs/sale/sale_post.yml')
     def post(self):
         args = create_sale_parser.parse_args()
         sale = self._create_sale(args.customer_id)
@@ -118,22 +156,6 @@ class SaleResource(SaleBaseResource):
             'status': sale.status,
         }
         return _json_result(response), 201
-    
-    @auth_token_required()
-    def patch(self, sale_id):
-        sale = self._finalize_sale(sale_id)
-        response = {
-            'sale_id': sale._id,
-            'amount': sale.amount,
-            'transaction_date': sale.transaction_date,
-            'status': sale.status,
-        }
-        return _json_result(response), 200
-    
-    @auth_token_required()
-    def delete(self, sale_id):
-        sale = self._cancel_sale(sale_id)
-        return {'sale_id': sale._id, 'status': sale.status}, 200
 
 
 class SaleItemResource(SaleBaseResource):
@@ -148,18 +170,6 @@ class SaleItemResource(SaleBaseResource):
         if not sale_item:
             abort(404, f'Sale Item ({item_id}) not found')
         return sale_item
-
-    def _update_medicine(self, medicine_id, quantity, action):
-        data = {'quantity': quantity}
-        headers = {'Content-Type': 'application/json'}
-        r = request_to_myself(
-            'patch',
-            f'/medicine/{medicine_id}/{action}',
-            data=data, headers=headers)
-
-        if r.status_code == 404:
-            abort(404, f'Medicine({medicine_id}) not found')
-        return r.json()
     
     def _delete_sale_item(self, sale_id, item_id):
         sale = self._get_sale(sale_id)
@@ -175,6 +185,36 @@ class SaleItemResource(SaleBaseResource):
             })
         session.commit()
         return sale_item
+
+    @auth_token_required()
+    @swag_from('../docs/sale/sale_item_get.yml')
+    def get(self, sale_id, item_id):
+        self._get_sale(sale_id)
+        sale_item = self._get_sale_item(item_id)
+        _sale_item = {
+            'id': sale_item._id,
+            'sale_id': sale_item.sale_id,
+            'medicine_id': sale_item.medicine_id,
+            'current_medicine_price': sale_item.current_medicine_price,
+            'quantity': sale_item.quantity,
+            'final_price': sale_item.final_price,
+            'is_cancelled': sale_item.is_cancelled,
+            'creation_date': sale_item.creation_date,
+        }
+        return _json_result(_sale_item), 200
+    
+    @auth_token_required()
+    @swag_from('../docs/sale/sale_item_delete.yml')
+    def delete(self, sale_id, item_id):
+        sale_item = self._delete_sale_item(sale_id, item_id)
+        response = {
+            'sale_item_id': sale_item._id,
+            'is_cancelled': sale_item.is_cancelled
+        }
+        return response
+
+
+class CreateSaleItemResource(SaleBaseResource):
 
     def _create_sale_item(self, sale_id, args):
         sale = self._get_sale(sale_id)
@@ -197,32 +237,8 @@ class SaleItemResource(SaleBaseResource):
         return sale_item
 
     @auth_token_required()
-    def get(self, sale_id, item_id):
-        self._get_sale(sale_id)
-        sale_item = self._get_sale_item(item_id)
-        _sale_item = {
-            'id': sale_item._id,
-            'sale_id': sale_item.sale_id,
-            'medicine_id': sale_item.medicine_id,
-            'current_medicine_price': sale_item.current_medicine_price,
-            'quantity': sale_item.quantity,
-            'final_price': sale_item.final_price,
-            'is_cancelled': sale_item.is_cancelled,
-            'creation_date': sale_item.creation_date,
-        }
-        return _json_result(_sale_item), 200
-
-    @auth_token_required()
+    @swag_from('../docs/sale/sale_item_post.yml')
     def post(self, sale_id):
         args = create_sale_item_parser.parse_args()
         sale_item = self._create_sale_item(sale_id, args)
         return {'sale_item_id': sale_item._id, 'quantity': args.quantity}
-    
-    @auth_token_required()
-    def delete(self, sale_id, item_id):
-        sale_item = self._delete_sale_item(sale_id, item_id)
-        response = {
-            'sale_item_id': sale_item._id,
-            'is_cancelled': sale_item.is_cancelled
-        }
-        return response
