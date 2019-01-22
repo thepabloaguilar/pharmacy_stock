@@ -34,3 +34,4 @@ api.add_resource(sale.CreateSaleResource, '/sale')
 api.add_resource(sale.CreateSaleItemResource, '/sale/<int:sale_id>/item')
 api.add_resource(sale.SaleItemResource,
                  '/sale/<int:sale_id>/item/<int:item_id>')
+api.add_resource(sale.SalesResource, '/sales')

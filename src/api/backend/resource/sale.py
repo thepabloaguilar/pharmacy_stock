@@ -242,3 +242,23 @@ class CreateSaleItemResource(SaleBaseResource):
         args = create_sale_item_parser.parse_args()
         sale_item = self._create_sale_item(sale_id, args)
         return {'sale_item_id': sale_item._id, 'quantity': args.quantity}
+
+
+class SalesResource(Resource):
+
+    def _get_sales(self):
+        session = PostgresSession()
+        sales = session.query(
+            Sale._id,
+            Sale.amount,
+            Sale.transaction_date,
+            Sale.customer_id,
+            Sale.seller_id,
+            Sale.status,
+            Sale.creation_date
+        )
+        return [s._asdict() for s in sales]
+
+    @auth_token_required()
+    def get(self):
+        return _json_result(self._get_sales()), 200
