@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from flask import abort
+from flasgger import swag_from
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
@@ -36,6 +37,28 @@ class PharmacyUserResource(Resource):
         session.commit()
         return user
 
+    @auth_token_required()
+    @swag_from('../docs/pharmacy_user/pharmacy_user_get.yml')
+    def get(self, user_id):
+        user = self._get_user(user_id)
+        informations = {
+            'id': user._id,
+            'username': user.username,
+            'is_active': user.is_active,
+            'creation_date': user.creation_date
+        }
+        return _json_result(informations), 200
+
+    @auth_token_required(only_admin=True)
+    @swag_from('../docs/pharmacy_user/pharmacy_user_patch.yml')
+    def patch(self, user_id):
+        user = self._inactive_user(user_id)
+        action = 'activated' if user.is_active else 'inactivated'
+        return {'message': f'User {user.username} {action}'}, 200
+
+
+class CreatePharmacyUserResource(Resource):
+
     def _create_user(self, informations):
         password = encrypt_password(informations.password)
         user = PharmacyUser(
@@ -53,19 +76,9 @@ class PharmacyUserResource(Resource):
             session.close()
         
         return user
-
+    
     @auth_token_required()
-    def get(self, user_id):
-        user = self._get_user(user_id)
-        informations = {
-            'id': user._id,
-            'username': user.username,
-            'is_active': user.is_active,
-            'creation_date': user.creation_date
-        }
-        return _json_result(informations), 200
-
-    @auth_token_required()
+    @swag_from('../docs/pharmacy_user/pharmacy_user_post.yml')
     def post(self):
         args = create_user_parser.parse_args()
 
@@ -75,11 +88,6 @@ class PharmacyUserResource(Resource):
         self._create_user(args)
         return {'message': f'User {args.username} was created successfuly'}, 201
 
-    @auth_token_required(only_admin=True)
-    def patch(self, user_id):
-        user = self._inactive_user(user_id)
-        action = 'activated' if user.is_active else 'inactivated'
-        return {'message': f'User {user.username} {action}'}, 200
 
 class PharmacyUsersResource(Resource):
 
@@ -93,5 +101,6 @@ class PharmacyUsersResource(Resource):
         return [u._asdict() for u in users]
 
     @auth_token_required(only_admin=True)
+    @swag_from('../docs/pharmacy_user/pharmacy_users_get.yml')
     def get(self):
         return _json_result(self._get_users()), 200

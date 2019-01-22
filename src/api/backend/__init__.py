@@ -7,9 +7,8 @@ from .resource import pharmacy_user, login, provider, medicine, customer, sale
 api_bp = Blueprint('backend', __name__)
 api = flask_restful.Api(api_bp)
 
-api.add_resource(
-    pharmacy_user.PharmacyUserResource,
-    '/user', '/user/<int:user_id>')
+api.add_resource(pharmacy_user.PharmacyUserResource, '/user/<int:user_id>')
+api.add_resource(pharmacy_user.CreatePharmacyUserResource, '/user')
 api.add_resource(pharmacy_user.PharmacyUsersResource, '/users')
 
 api.add_resource(login.Login, '/login')

@@ -1,0 +1,49 @@
+Create a Pharmacy User
+----
+tags:
+  - Pharmacy User
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Informations to create a pharmacy user
+    schema:
+      properties:
+        username:
+          type: string
+          description: Pharmacy User's username
+          example: Best Name
+        password:
+          type: string
+          description: Pharmacy User's password
+          example: 123456789
+        is_admin:
+          type: boolean
+          description: Pharmacy User's admin status
+          example: false
+definitions:
+  Pharmacy_User_Post:
+    type: object
+    properties:
+      message:
+        type: string
+        example: User USER_NAME was created successfuly
+responses:
+  201:
+    description: Message when Pharmacy User is created
+    schema:
+      $ref: '#/definitions/Pharmacy_User_Post'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'
