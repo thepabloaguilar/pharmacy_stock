@@ -196,7 +196,7 @@ class MedicineStockControl(Resource):
             abort(400, 'Invalid action')
 
         if args.quantity <= 0:
-            abort(400, "QUANTITY must be greater than ZERO(0)")
+            abort(400, 'QUANTITY must be greater than ZERO(0)')
         
         medicine = self._change_stock(medicine_id, args.quantity, action)
         response = {

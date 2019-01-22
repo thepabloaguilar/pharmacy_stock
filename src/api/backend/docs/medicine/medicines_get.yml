@@ -8,11 +8,6 @@ parameters:
     type: string
     required: true
     description: Token given by Login route
-  - in: path
-    name: medicine_id
-    type: integer
-    required: true
-    description: Medicine's ID
 definitions:
   Medicine_Informations_List:
     type: array

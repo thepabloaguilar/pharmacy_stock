@@ -33,6 +33,12 @@ definitions:
         type: string
         description: Sale's transaction date
         example: "2018-01-01 13:56:20"
+  Sale_Not_Found:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Sale not found
 responses:
   200:
     description: Sale's information
@@ -46,3 +52,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Sale not found
+    schema:
+      $ref: '#/definitions/Sale_Not_Found'

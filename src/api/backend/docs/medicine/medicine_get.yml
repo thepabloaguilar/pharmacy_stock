@@ -53,6 +53,12 @@ definitions:
         type: string
         description: Medicine creation date
         example: "2018-01-01 13:56:20"
+  Medicine_Not_Found:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Medicine not found
 responses:
   200:
     description: Medicine's information
@@ -66,3 +72,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Medicine not found
+    schema:
+      $ref: '#/definitions/Medicine_Not_Found'

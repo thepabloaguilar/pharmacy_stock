@@ -20,6 +20,18 @@ definitions:
       message:
         type: string
         example: The Medicines has been inserted
+  Medicine_CSV_Conflict_1:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Something is wrong in your CSV File
+  Medicine_CSV_Conflict_2:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Invalid Headers
 responses:
   201:
     description: Message when Medicine is created
@@ -33,3 +45,11 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  412:
+    description: Conflict when Headers is not correct
+    schema:
+      $ref: '#/definitions/Medicine_CSV_Conflict_2'
+  422:
+    description: Conflict when Provider ID or Medicine Type ID are incorrect
+    schema:
+      $ref: '#/definitions/Medicine_CSV_Conflict_1'

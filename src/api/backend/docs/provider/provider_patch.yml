@@ -33,3 +33,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Provider not found
+    schema:
+      $ref: '#/definitions/Provider_Not_Found'

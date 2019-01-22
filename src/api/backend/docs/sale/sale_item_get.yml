@@ -54,6 +54,16 @@ definitions:
         type: string
         description: Sale Item's creation date
         example: "2018-01-01 13:56:20"
+  Sale_Or_Sale_Item_Not_Found_Conflict:
+    type: array
+    items:
+      type: object
+      properties:
+        message:
+          type: string
+    example:
+      - message: Sale Item not found
+      - message: Sale not found
 responses:
   200:
     description: Sale Items's information
@@ -67,3 +77,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Sale or Sale Item not found
+    schema:
+      $ref: '#/definitions/Sale_Or_Sale_Item_Not_Found_Conflict'

@@ -45,6 +45,12 @@ definitions:
         type: string
         description: Customer's creation date
         example: "2018-01-01 13:56:20"
+  Customer_Not_Found:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Customer not found
 responses:
   200:
     description: Customer's information
@@ -58,3 +64,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Customer not found
+    schema:
+      $ref: '#/definitions/Customer_Not_Found'

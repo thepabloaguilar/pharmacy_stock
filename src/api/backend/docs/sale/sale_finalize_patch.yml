@@ -33,6 +33,16 @@ definitions:
         type: string
         description: Sale's transaction date
         example: "2018-01-01 13:56:20"
+  Sale_Finalize_Conflict:
+    type: array
+    items:
+      type: object
+      properties:
+        message:
+          type: string
+    example:
+      - message: Sale has been (FINALIZED/CANCELLED)
+      - message: Sale does not have any items to compute
 responses:
   200:
     description: Sale finalized
@@ -46,3 +56,11 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Sale not found
+    schema:
+      $ref: '#/definitions/Sale_Not_Found'
+  412:
+    description: Sale finalize conflicts
+    schema:
+      $ref: '#/definitions/Sale_Finalize_Conflict'

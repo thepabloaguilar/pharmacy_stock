@@ -33,6 +33,12 @@ definitions:
         type: string
         description: Pharmacy User's creation date
         example: "2018-01-01 13:56:20"
+  Pharmacy_User_Not_Found:
+    type: object
+    properties:
+      message:
+        type: string
+        example: User not found
 responses:
   200:
     description: Pharmacy User's information
@@ -46,3 +52,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: User not found
+    schema:
+      $ref: '#/definitions/Pharmacy_User_Not_Found'

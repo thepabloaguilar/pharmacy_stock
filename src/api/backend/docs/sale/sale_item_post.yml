@@ -35,6 +35,12 @@ definitions:
           type: integer
           description: Medicine quantity
           example: 10
+  Sale_Is_Not_Pending_To_Add_Items:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Sale is not PENDING
 responses:
   201:
     description: Message when sale item is created
@@ -48,3 +54,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Sale is not PENDING
+    schema:
+      $ref: '#/definitions/Sale_Is_Not_Pending_To_Add_Items'

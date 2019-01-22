@@ -34,11 +34,31 @@ definitions:
         type: float
         description: Medicine's price
         example: 25.02
+  Medicine_Patch_Invalid_Action_Conflict:
+    type: array
+    items:
+      type: object
+      properties:
+        message:
+          type: string
+    example:
+      - message: Invalid action
+      - message: QUANTITY must be greater than ZERO(0)
+  Medicine_Stock_Not_Enough:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Stock quantity is not enough
 responses:
   200:
     description: Medicine with current quantity and price
     schema:
       $ref: '#/definitions/Medicine_Stock_Control_Patch'
+  400:
+    description: Medicine with current status
+    schema:
+      $ref: '#/definitions/Medicine_Patch_Invalid_Action_Conflict'
   401:
     description: Token is invalid or expired
     schema:
@@ -47,3 +67,11 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Medicine not found
+    schema:
+      $ref: '#/definitions/Medicine_Not_Found'
+  412:
+    description: Medicine with current status
+    schema:
+      $ref: '#/definitions/Medicine_Stock_Not_Enough'

@@ -8,11 +8,6 @@ parameters:
     type: string
     required: true
     description: Token given by Login route
-  - in: path
-    name: provider_id
-    type: integer
-    required: true
-    description: Provider's ID
 definitions:
   Provider_Informations_List:
     type: array

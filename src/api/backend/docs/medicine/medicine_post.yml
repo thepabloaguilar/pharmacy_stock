@@ -38,6 +38,12 @@ definitions:
       message:
         type: string
         example: Medicine MEDICINE_NAME was created successfuly
+  Medicine_Conflict:
+    type: object
+    properties:
+      message:
+        type: string
+        example: provider_id or medicine_type_id is wrong
 responses:
   201:
     description: Message when Medicine is created
@@ -51,3 +57,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  412:
+    description: Conflict when Provider ID or Medicine Type ID are incorrect
+    schema:
+      $ref: '#/definitions/Medicine_Conflict'

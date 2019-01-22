@@ -38,6 +38,12 @@ definitions:
       message:
         type: string
         example: Customer "CUSTOMER_NAME" was created successfuly
+  Customer_Tax_Id_Conflict:
+    type: object
+    properties:
+      message:
+        type: string
+        example: tax_id already exists
 responses:
   201:
     description: Message when Customer is created
@@ -51,3 +57,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  412:
+    description: Conflict when Tax Id already registred
+    schema:
+      $ref: '#/definitions/Customer_Tax_Id_Conflict'

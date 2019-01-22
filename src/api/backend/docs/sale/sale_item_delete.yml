@@ -30,11 +30,21 @@ definitions:
         type: boolean
         description: Is flagged with 'true' to desmonstrates that item was cancelled
         example: true
+  Sale_Is_Not_Pending:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Sale is no longer PENDING
 responses:
   200:
     description: Sale Items's information
     schema:
       $ref: '#/definitions/Sale_Item_Delete'
+  400:
+    description: Sale is no longer PENDING
+    schema:
+      $ref: '#/definitions/Sale_Is_Not_Pending'
   401:
     description: Token is invalid or expired
     schema:
@@ -43,3 +53,7 @@ responses:
     description: Token is not in request HEADER or Only admin can access
     schema:
       $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Sale or Sale Item not found
+    schema:
+      $ref: '#/definitions/Sale_Or_Sale_Item_Not_Found_Conflict'

@@ -174,7 +174,7 @@ class SaleItemResource(SaleBaseResource):
     def _delete_sale_item(self, sale_id, item_id):
         sale = self._get_sale(sale_id)
         if sale.status != 'PENDING':
-            abort(400, 'Slae is no longer PENDING')
+            abort(400, 'Sale is no longer PENDING')
 
         sale_item = self._get_sale_item(item_id)
         session = PostgresSession()
