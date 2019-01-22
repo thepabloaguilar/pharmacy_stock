@@ -17,6 +17,10 @@ from ..model.sale_item import SaleItem
 
 class SaleBaseResource(Resource):
 
+    def _get_sale_items(self, sale_id):
+        session = PostgresSession()
+        return session.query(SaleItem).filter(SaleItem.sale_id == sale_id)
+
     def _get_sale(self, sale_id):
         session = PostgresSession()
         
@@ -43,31 +47,13 @@ class SaleBaseResource(Resource):
 
 
 class DeleteSaleResource(SaleBaseResource):
-    
-    def _get_sale_items_sum_and_count(self, sale_id):
-        session = PostgresSession()
-        sum_and_count = session.query(
-            func.count(SaleItem._id).label('count'),
-            func.sum(SaleItem.final_price).label('sum')) \
-            .filter(SaleItem.sale_id == sale_id) \
-            .filter(SaleItem.is_cancelled == False).first()
-        return sum_and_count
 
-    def _get_sale_items(self, sale_id):
-        session = PostgresSession()
-        return session.query(SaleItem).filter(SaleItem.sale_id == sale_id)
-
-    def _make_sale_finalization(self, sale_id, amount):
-        session = PostgresSession()
-
-        session.query(Sale) \
-        .filter(Sale._id == sale_id) \
-        .update({
-            Sale.amount: amount,
-            Sale.transaction_date: datetime.now(),
-            Sale.status: 'FINALIZED'
-        })
-        session.commit()
+    def _make_sale_items_cancelation(self, sale_id):
+        sale_items = self._get_sale_items(sale_id)
+        base_url = f'/sale/{sale_id}/item'
+        
+        for sale_item in sale_items:
+            request_to_myself('delete', f'{base_url}/{sale_item._id}')
 
     def _cancel_sale(self, sale_id):
         sale = self._get_sale(sale_id)
@@ -90,12 +76,26 @@ class DeleteSaleResource(SaleBaseResource):
 
 class FinalizeSaleResource(SaleBaseResource):
 
-    def _make_sale_items_cancelation(self, sale_id):
-        sale_items = self._get_sale_items(sale_id)
-        base_url = f'/sale/{sale_id}/item'
-        
-        for sale_item in sale_items:
-            request_to_myself('delete', f'{base_url}/{sale_item._id}')
+    def _get_sale_items_sum_and_count(self, sale_id):
+        session = PostgresSession()
+        sum_and_count = session.query(
+            func.count(SaleItem._id).label('count'),
+            func.sum(SaleItem.final_price).label('sum')) \
+            .filter(SaleItem.sale_id == sale_id) \
+            .filter(SaleItem.is_cancelled == False).first()
+        return sum_and_count
+    
+    def _make_sale_finalization(self, sale_id, amount):
+        session = PostgresSession()
+
+        session.query(Sale) \
+        .filter(Sale._id == sale_id) \
+        .update({
+            Sale.amount: amount,
+            Sale.transaction_date: datetime.now(),
+            Sale.status: 'FINALIZED'
+        })
+        session.commit()
 
     def _finalize_sale(self, sale_id):
         sale = self._get_sale(sale_id)
@@ -173,6 +173,9 @@ class SaleItemResource(SaleBaseResource):
     
     def _delete_sale_item(self, sale_id, item_id):
         sale = self._get_sale(sale_id)
+        if sale.status != 'PENDING':
+            abort(400, 'Slae is no longer PENDING')
+
         sale_item = self._get_sale_item(item_id)
         session = PostgresSession()
 
