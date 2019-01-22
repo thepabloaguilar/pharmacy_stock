@@ -263,3 +263,26 @@ class SalesResource(Resource):
     @swag_from('../docs/sale/sales_get.yml')
     def get(self):
         return _json_result(self._get_sales()), 200
+
+
+class SaleItemsResource(SaleBaseResource):
+
+    def _get_sale_items(self, sale_id):
+        sale = self._get_sale(sale_id)
+        session = PostgresSession()
+
+        sale_items = session.query(
+            SaleItem._id.label('id'),
+            SaleItem.sale_id,
+            SaleItem.medicine_id,
+            SaleItem.current_medicine_price,
+            SaleItem.quantity,
+            SaleItem.final_price,
+            SaleItem.is_cancelled,
+            SaleItem.creation_date
+        ).filter(SaleItem.sale_id == sale_id)
+        return [si._asdict() for si in sale_items]
+
+    @auth_token_required()
+    def get(self, sale_id):
+        return _json_result(self._get_sale_items(sale_id))
