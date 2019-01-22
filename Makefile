@@ -1,5 +1,17 @@
+start:
+	docker-compose up --build --remove-orphans -d
+
+stop:
+	docker-compose down
+
+buildapp:
+	docker-compose build flask_pharmacy
+
+startapp:
+	docker-compose up --remove-orphans -d flask_pharmacy
+
 builddb:
-	docker build -f ./postgres_docker/Dockerfile -t postgres_pharmacy_stock ./postgres_docker
+	docker-compose build postgres_pharmacy
 
 startdb:
-	docker run -d -p 5432:5432 postgres_pharmacy_stock
+	docker-compose up --remove-orphans -d postgres_pharmacy

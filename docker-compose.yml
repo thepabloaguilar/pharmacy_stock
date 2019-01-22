@@ -1,0 +1,29 @@
+version: '3.0'
+
+networks:
+  pharmacy:
+    driver: bridge
+
+services:
+  flask_pharmacy:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    networks:
+      - pharmacy
+    env_file:
+      - ./pharmacy_stock.env
+    depends_on:
+      - postgres_pharmacy
+  postgres_pharmacy:
+    build:
+      context: ./postgres_docker
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - pharmacy
