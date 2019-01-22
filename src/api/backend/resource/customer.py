@@ -1,16 +1,25 @@
-from flask import abort
+import io
+import csv
+
+from flask import abort, send_file
 from flasgger import swag_from
 from flask_restful import Resource
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from ..model import PostgresSession
 from ..model.customer import Customer
+from ..model.sale import Sale
+from ..model.sale_item import SaleItem
+from ..model.medicine import Medicine
+from ..model.medicine_type import MedicineType
+from ..model.provider import Provider
 from ..security import auth_token_required
 from ..parsers import create_customer_parser
 from ..utils import _json_result
 
 
-class CustomerResource(Resource):
+class CustomerBaseResource(Resource):
 
     def _get_customer(self, customer_id):
         session = PostgresSession()
@@ -21,6 +30,9 @@ class CustomerResource(Resource):
         if not customer:
             abort(404, 'Customer not found')
         return customer
+
+
+class CustomerResource(CustomerBaseResource):
     
     def _inactive_active_customer(self, customer_id):
         customer = self._get_customer(customer_id)
@@ -108,3 +120,61 @@ class CustomersResource(Resource):
     @swag_from('../docs/customer/customers_get.yml')
     def get(self):
         return _json_result(self._get_customers()), 200
+
+
+class CustomerMedicines(CustomerBaseResource):
+
+    def _get_customer_medicines(self, customer_id):
+        self._get_customer(customer_id)
+        session = PostgresSession()
+
+        medicines = session.query(
+            Sale.transaction_date,
+            Medicine.name,
+            SaleItem.current_medicine_price.label('price'),
+            SaleItem.quantity,
+            func.concat(
+                Medicine.dosage, '(', MedicineType.unit, ')'
+            ).label('usage'),
+            MedicineType.description,
+            Provider.name.label('provider_name')
+        ).select_from(Sale) \
+        .join(SaleItem, SaleItem.sale_id == Sale._id) \
+        .join(Medicine, Medicine._id == SaleItem.medicine_id) \
+        .join(MedicineType, MedicineType._id == Medicine.medicine_type_id) \
+        .join(Provider, Provider._id == Medicine.provider_id) \
+        .filter(Sale.customer_id == customer_id) \
+        .filter(Sale.status == 'FINALIZED') \
+        .filter(SaleItem.is_cancelled == False)
+        return [m._asdict() for m in medicines]
+
+    @auth_token_required()
+    def get(self, customer_id):
+        return _json_result(self._get_customer_medicines(customer_id))
+
+
+class CustomerMedicinesDownloadResource(CustomerMedicines):
+
+    def _to_csv(self, medicines):
+        header = [
+            'transaction_date', 'name', 'price',
+            'quantity', 'usage', 'description', 'provider_name'
+        ]
+        _io = io.StringIO()
+
+        writer = csv.DictWriter(_io, fieldnames=header)
+        writer.writeheader()
+        writer.writerows(medicines)
+
+        _io_bytes = io.BytesIO()
+        _io_bytes.write(_io.getvalue().encode('utf-8'))
+        _io_bytes.seek(0)
+        return _io_bytes
+
+    def get(self, customer_id):
+        medicines = self._get_customer_medicines(customer_id)
+        return send_file(
+            self._to_csv(medicines),
+            mimetype='text/csv',
+            as_attachment=True,
+            attachment_filename='teste.csv')

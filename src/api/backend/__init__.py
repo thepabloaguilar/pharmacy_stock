@@ -27,6 +27,10 @@ api.add_resource(medicine.MedicineStockControl,
 api.add_resource(customer.CustomerResource, '/customer/<int:customer_id>')
 api.add_resource(customer.CreateCustomerResource, '/customer')
 api.add_resource(customer.CustomersResource, '/customers')
+api.add_resource(customer.CustomerMedicines,
+    '/customer/<int:customer_id>/medicines')
+api.add_resource(customer.CustomerMedicinesDownloadResource,
+    '/customer/<int:customer_id>/medicines/download')
 
 api.add_resource(sale.DeleteSaleResource, '/sale/<int:sale_id>')
 api.add_resource(sale.FinalizeSaleResource, '/sale/<int:sale_id>/finalize')
