@@ -14,9 +14,8 @@ api.add_resource(pharmacy_user.PharmacyUsersResource, '/users')
 
 api.add_resource(login.Login, '/login')
 
-api.add_resource(
-    provider.ProviderResource,
-    '/provider', '/provider/<int:provider_id>')
+api.add_resource(provider.ProviderResource, '/provider/<int:provider_id>')
+api.add_resource(provider.CreateProviderResource, '/provider')
 api.add_resource(provider.ProvidersResource, '/providers')
 
 api.add_resource(
