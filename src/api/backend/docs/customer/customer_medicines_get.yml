@@ -1,0 +1,68 @@
+Get Customer Medince's information
+----
+tags:
+  - Customer
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: path
+    name: customer_id
+    type: integer
+    required: true
+    description: Customer's ID
+definitions:
+  Customer_Medicines_Information:
+    type: object
+    properties:
+      transaction_date:
+        type: string
+        description: Transaction date
+        example: "2018-01-01 23:59:22"
+      name:
+        type: string
+        description: Medicine's name
+        example: Medicine Name
+      price:
+        type: float
+        description: Medicine's price
+        example: 26.32
+      quantity:
+        type: integer
+        description: Medicines bought
+        example: 23
+      usage:
+        type: integer
+        description: Usage
+        example: 2
+      description:
+        type: string
+        description: Medicine Type's description
+        example: pill
+      provider_name:
+        type: string
+        description: Medicine's Provider
+        example: Provider
+  Customer_Medicines_Information_List:
+    type: array
+    items:
+      $ref: "#/definitions/Customer_Medicines_Information"
+responses:
+  200:
+    description: Customer Medicines's information
+    schema:
+      $ref: '#/definitions/Customer_Medicines_Information_List'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'
+  404:
+    description: Customer not found
+    schema:
+      $ref: '#/definitions/Customer_Not_Found'

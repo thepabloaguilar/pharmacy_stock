@@ -149,6 +149,7 @@ class CustomerMedicines(CustomerBaseResource):
         return [m._asdict() for m in medicines]
 
     @auth_token_required()
+    @swag_from('../docs/customer/customer_medicines_get.yml')
     def get(self, customer_id):
         return _json_result(self._get_customer_medicines(customer_id))
 
@@ -171,6 +172,8 @@ class CustomerMedicinesDownloadResource(CustomerMedicines):
         _io_bytes.seek(0)
         return _io_bytes
 
+    @auth_token_required()
+    @swag_from('../docs/customer/customer_medicines_download_get.yml')
     def get(self, customer_id):
         medicines = self._get_customer_medicines(customer_id)
         return send_file(
