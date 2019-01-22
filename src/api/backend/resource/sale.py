@@ -284,5 +284,6 @@ class SaleItemsResource(SaleBaseResource):
         return [si._asdict() for si in sale_items]
 
     @auth_token_required()
+    @swag_from('../docs/sale/sale_items_get.yml')
     def get(self, sale_id):
         return _json_result(self._get_sale_items(sale_id))
