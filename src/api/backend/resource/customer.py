@@ -177,4 +177,4 @@ class CustomerMedicinesDownloadResource(CustomerMedicines):
             self._to_csv(medicines),
             mimetype='text/csv',
             as_attachment=True,
-            attachment_filename='teste.csv')
+            attachment_filename=f'{customer_id}.csv')
