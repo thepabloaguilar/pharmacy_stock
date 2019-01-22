@@ -1,0 +1,35 @@
+Inactive or Active Medicines
+----
+tags:
+  - Medicine
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: path
+    name: medicine_id
+    type: integer
+    required: true
+    description: Medicine's ID
+definitions:
+  Medicine_Patch:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Medicine MEDICINE_NAME (activated/inactivated)
+responses:
+  200:
+    description: Medicine with current status
+    schema:
+      $ref: '#/definitions/Medicine_Patch'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

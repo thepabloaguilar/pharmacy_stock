@@ -18,9 +18,8 @@ api.add_resource(provider.ProviderResource, '/provider/<int:provider_id>')
 api.add_resource(provider.CreateProviderResource, '/provider')
 api.add_resource(provider.ProvidersResource, '/providers')
 
-api.add_resource(
-    medicine.MedicineResource,
-    '/medicine', '/medicine/<int:medicine_id>')
+api.add_resource(medicine.MedicineResource, '/medicine/<int:medicine_id>')
+api.add_resource(medicine.CreateMedicineResource, '/medicine')
 api.add_resource(medicine.MedicinesResource, '/medicines')
 api.add_resource(medicine.UploadMedicinesResource, '/medicines/upload')
 api.add_resource(medicine.MedicineStockControl,

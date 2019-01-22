@@ -1,0 +1,68 @@
+Get Medicine's information
+----
+tags:
+  - Medicine
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: path
+    name: medicine_id
+    type: integer
+    required: true
+    description: Medicine's ID
+definitions:
+  Medicine_Informations:
+    type: object
+    properties:
+      id:
+        type: integer
+        description: Medicine Identifier
+        example: 1
+      name:
+        type: string
+        description: Medicine Name
+        example: Super Medicine
+      medicine_type_id:
+        type: integer
+        description: Medicine Type Id
+        example: 1
+      dosage:
+        type: integer
+        description: Medicine dosage
+        example: 5
+      amount:
+        type: float
+        description: Medicine Price
+        example: 14.06
+      quantity:
+        type: integer
+        description: Medicine quantity
+        example: 20
+      provider_id:
+        type: integer
+        description: Medicine Provider's ID
+        example: 1
+      is_active:
+        type: boolean
+        description: Medicine status
+        example: true
+      creation_date:
+        type: string
+        description: Medicine creation date
+        example: "2018-01-01 13:56:20"
+responses:
+  200:
+    description: Medicine's information
+    schema:
+      $ref: '#/definitions/Medicine_Informations'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

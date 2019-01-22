@@ -1,0 +1,53 @@
+Create a Medicine
+----
+tags:
+  - Medicine
+parameters:
+  - in: header
+    name: Token
+    type: string
+    required: true
+    description: Token given by Login route
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Informations to create a medicine
+    schema:
+      properties:
+        name:
+          type: string
+          description: Medicine's Name
+          example: Cool Name
+        medicine_type_id:
+          type: integer
+          description: Medicine Type's ID
+          example: 1
+        dosage:
+          type: integer
+          description: Medicine dosage amount
+          example: 2
+        provider_id:
+          type: integer
+          description: Medicine Provider's ID
+          example: 2
+definitions:
+  Medicine_Post:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Medicine MEDICINE_NAME was created successfuly
+responses:
+  201:
+    description: Message when Medicine is created
+    schema:
+      $ref: '#/definitions/Medicine_Post'
+  401:
+    description: Token is invalid or expired
+    schema:
+      $ref: '#/definitions/Invalid_Token'
+  403:
+    description: Token is not in request HEADER or Only admin can access
+    schema:
+      $ref: '#/definitions/No_Token_Header'

@@ -1,6 +1,7 @@
 import pandas as pd
 
 from flask import abort
+from flasgger import swag_from
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
@@ -26,6 +27,47 @@ class MedicineResource(Resource):
         if not medicine:
             abort(404, 'Medicine not found')
         return medicine
+    
+    def _inactive_active_medicine(self, medicine_id):
+        medicine = self._get_medicine(medicine_id)
+        session = PostgresSession()
+
+        session.query(Medicine) \
+        .filter(Medicine._id == medicine_id) \
+        .update({
+            Medicine.is_active: not medicine.is_active
+        })
+        session.commit()
+
+        return medicine
+
+
+    @auth_token_required()
+    @swag_from('../docs/medicine/medicine_get.yml')
+    def get(self, medicine_id):
+        medicine = self._get_medicine(medicine_id)
+        _medicine = {
+            'id': medicine._id,
+            'name': medicine.name,
+            'medicine_type_id': medicine.medicine_type_id,
+            'dosage': medicine.dosage,
+            'amount': medicine.amount,
+            'quantity': medicine.quantity,
+            'provider_id': medicine.provider_id,
+            'is_active': medicine.is_active,
+            'creation_date': medicine.creation_date,
+        }
+        return _json_result(_medicine)
+    
+    @auth_token_required(only_admin=True)
+    @swag_from('../docs/medicine/medicine_patch.yml')
+    def patch(self, medicine_id):
+        medicine = self._inactive_active_medicine(medicine_id)
+        action = 'activated' if medicine.is_active else 'inactivated'
+        return {'message': f'Medicine "{medicine.name}" {action}'}, 200
+
+
+class CreateMedicineResource(Resource):
 
     def _create_medicine(self, informations):
         session = PostgresSession()
@@ -44,48 +86,13 @@ class MedicineResource(Resource):
             session.rollback()
             abort(412, '"provider_id" or "medicine_type_id" is wrong')
         return medicine
-    
-    def _inactive_active_medicine(self, medicine_id):
-        medicine = self._get_medicine(medicine_id)
-        session = PostgresSession()
 
-        session.query(Medicine) \
-        .filter(Medicine._id == medicine_id) \
-        .update({
-            Medicine.is_active: not medicine.is_active
-        })
-        session.commit()
-
-        return medicine
-
-
-    @auth_token_required()
-    def get(self, medicine_id):
-        medicine = self._get_medicine(medicine_id)
-        _medicine = {
-            'id': medicine._id,
-            'name': medicine.name,
-            'medicine_type_id': medicine.medicine_type_id,
-            'dosage': medicine.dosage,
-            'amount': medicine.amount,
-            'quantity': medicine.quantity,
-            'provider_id': medicine.provider_id,
-            'is_active': medicine.is_active,
-            'creation_date': medicine.creation_date,
-        }
-        return _json_result(_medicine)
-    
     @auth_token_required(only_admin=True)
+    @swag_from('../docs/medicine/medicine_post.yml')
     def post(self):
         args = create_medicine_parser.parse_args()
         self._create_medicine(args)
         return {'message': f'Medicine "{args.name}" was created successfuly'}, 201
-    
-    @auth_token_required(only_admin=True)
-    def patch(self, medicine_id):
-        medicine = self._inactive_active_medicine(medicine_id)
-        action = 'activated' if medicine.is_active else 'inactivated'
-        return {'message': f'Medicine "{medicine.name}" {action}'}, 200
 
 
 class MedicinesResource(Resource):
@@ -106,6 +113,7 @@ class MedicinesResource(Resource):
         return [m._asdict() for m in medicines]
 
     @auth_token_required()
+    @swag_from('../docs/medicine/medicines_get.yml')
     def get(self):
         return _json_result(self._get_medicines())
 
@@ -141,6 +149,7 @@ class UploadMedicinesResource(Resource):
         self._bulk_insert_medicines(medicines)
 
     @auth_token_required(only_admin=True)
+    @swag_from('../docs/medicine/medicine_post_csv.yml')
     def post(self):
         args = upload_medicine_csv.parse_args()
         _file = args.file
@@ -179,6 +188,7 @@ class MedicineStockControl(Resource):
         return medicine
 
     @auth_token_required()
+    @swag_from('../docs/medicine/medicine_stock_control_patch.yml')
     def patch(self, medicine_id, action):
         args = change_medicine_stock_parser.parse_args()
 
