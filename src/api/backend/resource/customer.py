@@ -1,4 +1,5 @@
 from flask import abort
+from flasgger import swag_from
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
@@ -20,6 +21,44 @@ class CustomerResource(Resource):
         if not customer:
             abort(404, 'Customer not found')
         return customer
+    
+    def _inactive_active_customer(self, customer_id):
+        customer = self._get_customer(customer_id)
+        session = PostgresSession()
+        
+        session.query(Customer) \
+        .filter(Customer._id == customer_id) \
+        .update({
+            Customer.is_active: not customer.is_active
+        })
+        session.commit()
+
+        return customer
+
+    @auth_token_required()
+    @swag_from('../docs/customer/customer_get.yml')
+    def get(self, customer_id):
+        customer = self._get_customer(customer_id)
+        _customer = {
+            'id': customer._id,
+            'name': customer.name,
+            'telephone': customer.telephone,
+            'tax_id': customer.tax_id,
+            'is_active': customer.is_active,
+            'genre': customer.genre,
+            'creation_date': customer.creation_date,
+        }
+        return _json_result(_customer)
+    
+    @auth_token_required(only_admin=True)
+    @swag_from('../docs/customer/customer_patch.yml')
+    def patch(self, customer_id):
+        customer = self._inactive_active_customer(customer_id)
+        action = 'activated' if customer.is_active else 'inactivated'
+        return {'message': f'Customer "{customer.name}" {action}'}, 200
+
+
+class CreateCustomerResource(Resource):
 
     def _create_customer(self, informations):
         session = PostgresSession()
@@ -37,37 +76,10 @@ class CustomerResource(Resource):
         except IntegrityError:
             session.rollback()
             abort(412, '"tax_id" already exists')
-        print(f'CUSTOMER ID --> {customer._id}')
-        return customer
-    
-    def _inactive_active_customer(self, customer_id):
-        customer = self._get_customer(customer_id)
-        session = PostgresSession()
-        
-        session.query(Customer) \
-        .filter(Customer._id == customer_id) \
-        .update({
-            Customer.is_active: not customer.is_active
-        })
-        session.commit()
-
         return customer
 
     @auth_token_required()
-    def get(self, customer_id):
-        customer = self._get_customer(customer_id)
-        _customer = {
-            'id': customer._id,
-            'name': customer.name,
-            'telephone': customer.telephone,
-            'tax_id': customer.tax_id,
-            'is_active': customer.is_active,
-            'genre': customer.genre,
-            'creation_date': customer.creation_date,
-        }
-        return _json_result(_customer)
-    
-    @auth_token_required()
+    @swag_from('../docs/customer/customer_post.yml')
     def post(self):
         args = create_customer_parser.parse_args()
         customer = self._create_customer(args)
@@ -75,12 +87,6 @@ class CustomerResource(Resource):
             'message': f'Customer "{customer.name}" was created successfuly'
         }
         return response, 201
-    
-    @auth_token_required(only_admin=True)
-    def patch(self, customer_id):
-        customer = self._inactive_active_customer(customer_id)
-        action = 'activated' if customer.is_active else 'inactivated'
-        return {'message': f'Customer "{customer.name}" {action}'}, 200
 
 
 class CustomersResource(Resource):
@@ -99,5 +105,6 @@ class CustomersResource(Resource):
         return [c._asdict() for c in customers]
 
     @auth_token_required()
+    @swag_from('../docs/customer/customers_get.yml')
     def get(self):
         return _json_result(self._get_customers()), 200

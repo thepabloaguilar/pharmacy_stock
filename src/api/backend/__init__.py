@@ -25,9 +25,8 @@ api.add_resource(medicine.UploadMedicinesResource, '/medicines/upload')
 api.add_resource(medicine.MedicineStockControl,
                 '/medicine/<int:medicine_id>/<string:action>')
 
-api.add_resource(
-    customer.CustomerResource,
-    '/customer', '/customer/<int:customer_id>')
+api.add_resource(customer.CustomerResource, '/customer/<int:customer_id>')
+api.add_resource(customer.CreateCustomerResource, '/customer')
 api.add_resource(customer.CustomersResource, '/customers')
 
 api.add_resource(
