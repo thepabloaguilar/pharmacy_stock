@@ -260,5 +260,6 @@ class SalesResource(Resource):
         return [s._asdict() for s in sales]
 
     @auth_token_required()
+    @swag_from('../docs/sale/sales_get.yml')
     def get(self):
         return _json_result(self._get_sales()), 200
