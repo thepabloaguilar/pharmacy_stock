@@ -253,7 +253,7 @@ class SalesResource(Resource):
     def _get_sales(self):
         session = PostgresSession()
         sales = session.query(
-            Sale._id,
+            Sale._id.label('id'),
             Sale.amount,
             Sale.transaction_date,
             Sale.customer_id,
