@@ -72,3 +72,16 @@ Para consumir as outras rotas basta repetir os passos **1, 2, 3,**  nas mesmas, 
 - Após iniciar uma venda, a mesma só podera ser finalizada se tiver um ou mais items associados a ela e que não estejam cancelados.
 - Depois que uma venda é Finalizada não é mais possível cancelar um item da mesma, só será possível cancelar a venda por completo.
 - Um item só poderá ser vinculado a venda se o mesmo tiver estoque suficiente.
+
+## Inserção de novos medicamentos via CSV
+
+O sistema permite a inserção de novos medicamentos utilizando um arquivo CSV, utilizando a rota `api/medicines/upload`.
+O separador deverá ser **;**(ponto e virgula), com o seguinte cabeçalho:
+* name &rightarrow; Nome do Medicamento
+* medicine_type_id &rightarrow; Tipo do Medicamento(1: Pilula, 2: Xarope, 3: Gotas)
+* dosage &rightarrow; Dosagem do Medicamento
+* amount &rightarrow; Preço do Medicamento
+* quantity &rightarrow; Quantidade do Medicamento
+* provider_id &rightarrow; Identificador do Fornecedor(Em caso de dúvida a rota `/api/providers` devolve uma lista com todos os fornecedores e seus respectivos IDs)
+
+**Observação: Na raiz do projeto há um arquivo, `medicines.csv`, que pode ser utilizado como exemplo**
