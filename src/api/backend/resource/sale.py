@@ -59,12 +59,12 @@ class DeleteSaleResource(SaleBaseResource):
         sale = self._get_sale(sale_id)
         session = PostgresSession()
 
-        self._make_sale_items_cancelation(sale_id)
-
         session.query(Sale) \
             .filter(Sale._id == sale_id) \
             .update({Sale.status: 'CANCELLED'})
         session.commit()
+
+        self._make_sale_items_cancelation(sale_id)
         return sale
     
     @auth_token_required()
@@ -173,20 +173,21 @@ class SaleItemResource(SaleBaseResource):
     
     def _delete_sale_item(self, sale_id, item_id):
         sale = self._get_sale(sale_id)
-        if sale.status != 'PENDING':
-            abort(400, 'Sale is no longer PENDING')
+        if sale.status not in ['PENDING', 'CANCELLED']:
+            abort(400, 'Sale is no longer PENDING or CANCELLED')
 
         sale_item = self._get_sale_item(item_id)
-        session = PostgresSession()
+        if not sale_item.is_cancelled:
+            session = PostgresSession()
 
-        self._update_medicine(sale_item.medicine_id, sale_item.quantity, 'add')
+            self._update_medicine(sale_item.medicine_id, sale_item.quantity, 'add')
 
-        session.query(SaleItem) \
-            .filter(SaleItem._id == item_id) \
-            .update({
-                SaleItem.is_cancelled: True
-            })
-        session.commit()
+            session.query(SaleItem) \
+                .filter(SaleItem._id == item_id) \
+                .update({
+                    SaleItem.is_cancelled: True
+                })
+            session.commit()
         return sale_item
 
     @auth_token_required()
