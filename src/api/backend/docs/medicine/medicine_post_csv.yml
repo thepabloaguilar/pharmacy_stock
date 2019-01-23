@@ -9,7 +9,7 @@ parameters:
     required: true
     description: Token given by Login route
   - in: formData
-    name: body
+    name: file
     type: file
     required: true
     description: Informations to create medicines

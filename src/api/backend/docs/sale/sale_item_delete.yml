@@ -35,14 +35,14 @@ definitions:
     properties:
       message:
         type: string
-        example: Sale is no longer PENDING
+        example: Sale is no longer PENDING or CANCELLED
 responses:
   200:
     description: Sale Items's information
     schema:
       $ref: '#/definitions/Sale_Item_Delete'
   400:
-    description: Sale is no longer PENDING
+    description: Sale is no longer PENDING or CANCELLED
     schema:
       $ref: '#/definitions/Sale_Is_Not_Pending'
   401:

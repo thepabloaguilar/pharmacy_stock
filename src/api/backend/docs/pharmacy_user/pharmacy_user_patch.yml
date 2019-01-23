@@ -9,7 +9,7 @@ parameters:
     required: true
     description: Token given by Login route
   - in: path
-    name: pharmacy_user_id
+    name: user_id
     type: integer
     required: true
     description: Pharmacy User's ID

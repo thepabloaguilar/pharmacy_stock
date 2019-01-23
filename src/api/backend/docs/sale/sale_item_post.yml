@@ -8,6 +8,11 @@ parameters:
     type: string
     required: true
     description: Token given by Login route
+  - in: path
+    name: sale_id
+    type: integer
+    required: true
+    description: Sale ID
   - in: body
     name: body
     type: string

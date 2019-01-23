@@ -31,6 +31,10 @@ parameters:
           type: integer
           description: Medicine Provider's ID
           example: 2
+        amount:
+          type: float
+          description: Medicine's price
+          example: 10.20
 definitions:
   Medicine_Post:
     type: object

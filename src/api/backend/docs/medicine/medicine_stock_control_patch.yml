@@ -15,9 +15,20 @@ parameters:
     description: Medicine's ID
   - in: path
     name: action
-    type: integer
+    type: string
     required: true
     description: Action, 'add' or 'remove'
+  - in: body
+    name: body
+    type: string
+    required: true
+    description: Quantity to add/remove from Medicine stock
+    schema:
+      properties:
+        quantity:
+          type: int
+          description: Quantity
+          example: 1
 definitions:
   Medicine_Stock_Control_Patch:
     type: object

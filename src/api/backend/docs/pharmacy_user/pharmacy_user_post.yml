@@ -18,11 +18,11 @@ parameters:
         username:
           type: string
           description: Pharmacy User's username
-          example: Best Name
+          example: BestName
         password:
           type: string
           description: Pharmacy User's password
-          example: 123456789
+          example: "123456789"
         is_admin:
           type: boolean
           description: Pharmacy User's admin status
